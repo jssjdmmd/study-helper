@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Avanzato con Risposte Accurate</title>
+  <title>STUDY HELPER</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -99,6 +99,7 @@
         <p><strong>Domanda:</strong> ${question}</p>
         <button class="btn" onclick="checkAnswer('${correctAnswer}', '${correctAnswer}')">${correctAnswer}</button>
         <div id="feedback"></div>
+        <button class="btn success" onclick="generateNewQuestion()">Prova un'altra domanda</button>
       `;
     });
 
@@ -129,6 +130,15 @@
       } else {
         feedback.innerHTML = `<p class='response-feedback incorrect'>Risposta sbagliata! La risposta corretta era: "${correct}".</p>`;
       }
+
+      // Disabilita i pulsanti dopo la risposta
+      const buttons = document.querySelectorAll('.btn');
+      buttons.forEach(btn => btn.disabled = true);
+    }
+
+    // Funzione per generare una nuova domanda (resettare il quiz)
+    function generateNewQuestion() {
+      document.getElementById('quizContainer').innerHTML = '';
     }
   </script>
 </body>
