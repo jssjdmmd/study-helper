@@ -78,52 +78,62 @@
 
   <script>
     document.getElementById('generateQuiz').addEventListener('click', async () => {
-      const text = document.getElementById('textInput').value;
+      const text = document.getElementById('textInput').value.trim();
 
-      if (!text.trim()) {
+      if (!text) {
         alert("Inserisci del testo per generare il quiz!");
         return;
       }
 
-      // Estrazione della domanda dal testo
-      const sentences = text.split('.').filter(s => s.trim());
-      if (sentences.length === 0) {
-        alert("Il testo inserito non contiene frasi valide.");
-        return;
-      }
-      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
-      const question = `Cosa significa: "${randomSentence}"?`;
-
-      // Ottenere la risposta tramite OpenAI API (o altra fonte esterna)
+      // Prepara il prompt per l'AI, chiedendo di formulare una domanda utile
+      const question = await generateQuestionFromText(text);
       const correctAnswer = await getAnswerFromAI(question);
 
-      // Mostra la domanda e la risposta corretta (per esempio, una sola risposta per ora)
+      if (!question || !correctAnswer) {
+        alert("Si è verificato un errore nella generazione del quiz.");
+        return;
+      }
+
+      // Mostra la domanda e la risposta corretta
       const quizContainer = document.getElementById('quizContainer');
       quizContainer.innerHTML = `
         <p><strong>Domanda:</strong> ${question}</p>
-        <button class="btn" onclick="checkAnswer('${correctAnswer}', '${correctAnswer}')">${correctAnswer}</button>
+        <button class="btn" onclick="checkAnswer('${correctAnswer}', '${correctAnswer}')">Risposta corretta</button>
         <div id="feedback"></div>
         <button class="btn success" onclick="generateNewQuestion()">Prova un'altra domanda</button>
       `;
     });
 
-    // Funzione per inviare la domanda all'AI (OpenAI API)
+    // Funzione per creare una domanda dal testo inserito
+    async function generateQuestionFromText(text) {
+      // Usa una semplice logica per estrarre una frase dal testo come domanda
+      const sentences = text.split('.').filter(s => s.trim());
+      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
+      return `Cosa significa: "${randomSentence}"?`;
+    }
+
+    // Funzione per ottenere la risposta dall'AI
     async function getAnswerFromAI(question) {
-      const apiKey = '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'; // Inserisci qui la tua API Key
-      const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "text-davinci-003",
-          prompt: question,
-          max_tokens: 50,
-        }),
-      });
-      const data = await response.json();
-      return data.choices[0].text.trim(); // Risposta corretta
+      const apiKey = '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'; // Inserisci la tua API Key qui
+      try {
+        const response = await fetch('https://api.openai.com/v1/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "text-davinci-003",
+            prompt: question,
+            max_tokens: 50,
+          }),
+        });
+        const data = await response.json();
+        return data.choices[0].text.trim(); // Risposta dell'AI
+      } catch (error) {
+        console.error('Errore API:', error);
+        return null;
+      }
     }
 
     // Funzione per controllare la risposta
@@ -134,7 +144,6 @@
       } else {
         feedback.innerHTML = `<p class='response-feedback incorrect'>Risposta sbagliata! La risposta corretta era: "${correct}".</p>`;
       }
-
       // Disabilita i pulsanti dopo la risposta
       const buttons = document.querySelectorAll('.btn');
       buttons.forEach(btn => btn.disabled = true);
