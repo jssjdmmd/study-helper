@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STUDY HELPER</title>
+  <title>Quiz Avanzato con Risposte Accurate</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
-      background-color: #f4f4f9;
+      background-color: #f4e1a1; /* Giallo ocra chiaro */
       color: #333;
     }
     .container {
@@ -87,6 +87,10 @@
 
       // Estrazione della domanda dal testo
       const sentences = text.split('.').filter(s => s.trim());
+      if (sentences.length === 0) {
+        alert("Il testo inserito non contiene frasi valide.");
+        return;
+      }
       const randomSentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
       const question = `Cosa significa: "${randomSentence}"?`;
 
@@ -105,7 +109,7 @@
 
     // Funzione per inviare la domanda all'AI (OpenAI API)
     async function getAnswerFromAI(question) {
-      const apiKey = 'YOUR_OPENAI_API_KEY'; // Inserisci qui la tua API Key
+      const apiKey = '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'; // Inserisci qui la tua API Key
       const response = await fetch('https://api.openai.com/v1/completions', {
         method: 'POST',
         headers: {
