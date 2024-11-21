@@ -1,35 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz con Risposte Logiche</title>
+  <title>Quiz Avanzato con Risposte Logiche</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
     }
     .container {
       max-width: 800px;
       margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    #quizContainer, #flashcardContainer {
-      display: none;
+    h1 {
+      font-size: 24px;
+      color: #2196f3;
+      text-align: center;
+    }
+    #textInput {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+    #generateQuiz {
+      width: 100%;
+      padding: 15px;
+      background-color: #2196f3;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
       margin-top: 20px;
+      cursor: pointer;
+    }
+    #generateQuiz:hover {
+      background-color: #1976d2;
     }
     .btn {
-      padding: 10px 15px;
-      margin: 5px;
+      padding: 12px;
+      margin: 10px 0;
       cursor: pointer;
       border: none;
       border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
     }
     .btn.success { background-color: #4caf50; color: white; }
     .btn.danger { background-color: #f44336; color: white; }
     .btn.info { background-color: #2196f3; color: white; }
     .response-feedback {
-      margin-top: 10px;
+      margin-top: 20px;
       font-weight: bold;
+      font-size: 18px;
+      text-align: center;
     }
     .response-feedback.correct { color: #4caf50; }
     .response-feedback.incorrect { color: #f44336; }
@@ -38,58 +71,63 @@
 <body>
   <div class="container">
     <h1>Quiz Avanzati con Risposte Logiche</h1>
-    <textarea id="textInput" rows="4" cols="50" placeholder="Inserisci del testo..."></textarea>
-    <br>
+    <textarea id="textInput" rows="6" placeholder="Inserisci del testo..."></textarea>
     <button id="generateQuiz" class="btn info">Genera Quiz</button>
-    <div id="quizContainer" style="margin-top: 20px;"></div>
+    <div id="quizContainer"></div>
   </div>
 
   <script>
+    // Funzione per generare un quiz
     document.getElementById('generateQuiz').addEventListener('click', () => {
       const text = document.getElementById('textInput').value;
       if (!text.trim()) {
-        alert("Inserisci del testo!");
+        alert("Inserisci del testo per generare il quiz!");
         return;
       }
 
-      const sentences = text.split('.').filter(s => s.trim());
+      const sentences = text.split('.').filter(s => s.trim()); // Prendi frasi dal testo
       if (sentences.length < 2) {
         alert("Inserisci almeno due frasi per generare il quiz!");
         return;
       }
 
-      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-      const question = `Cosa significa: "${randomSentence.trim()}"?`;
+      // Seleziona una frase casuale come domanda
+      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
+      const question = `Cosa significa: "${randomSentence}"?`;
 
-      // Le risposte corrette e sbagliate
-      const correctAnswer = randomSentence.trim();
-      const incorrectAnswers = sentences.filter(s => s !== correctAnswer).slice(0, 3); // Prendi frasi diverse come risposte errate
+      // Risposte: una corretta e altre errate
+      const correctAnswer = randomSentence;
+      const incorrectAnswers = sentences.filter(s => s !== correctAnswer).slice(0, 3); // Aggiungi risposte errate
       const options = [correctAnswer, ...incorrectAnswers].sort(() => Math.random() - 0.5); // Mescola le risposte
 
-      // Genera la domanda e le risposte
+      // Mostra la domanda e le risposte
       const quizContainer = document.getElementById('quizContainer');
       quizContainer.innerHTML = `
         <p><strong>Domanda:</strong> ${question}</p>
-        ${options
-          .map(
-            option =>
-              `<button onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`
-          )
-          .join('<br>')}
-        <p id="feedback"></p>
+        ${options.map(option => `<button class="btn" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`).join('')}
+        <div id="feedback"></div>
       `;
     });
 
     // Funzione per controllare la risposta
     function checkAnswer(selected, correct) {
       const feedback = document.getElementById('feedback');
+      const quizContainer = document.getElementById('quizContainer');
+
       if (selected === correct) {
-        feedback.textContent = "Risposta corretta!";
-        feedback.style.color = "green";
+        feedback.innerHTML = "<p class='response-feedback correct'>Risposta corretta!</p>";
       } else {
-        feedback.textContent = `Risposta sbagliata! La risposta corretta era: "${correct}".`;
-        feedback.style.color = "red";
+        feedback.innerHTML = `<p class='response-feedback incorrect'>Risposta sbagliata! La risposta corretta era: "${correct}".</p>`;
       }
+
+      // Disabilita i pulsanti dopo la risposta
+      const buttons = quizContainer.querySelectorAll('button');
+      buttons.forEach(btn => btn.disabled = true);
+
+      // Mostra il bottone per fare un altro quiz
+      quizContainer.innerHTML += `
+        <button class="btn success" onclick="location.reload()">Prova un'altra domanda</button>
+      `;
     }
   </script>
 </body>
