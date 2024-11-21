@@ -70,22 +70,24 @@
 </head>
 <body>
   <div class="container">
-    <h1>Quiz Avanzati con Risposte Logiche</h1>
+    <h1>Quiz Avanzato con Risposte Logiche</h1>
     <textarea id="textInput" rows="6" placeholder="Inserisci del testo..."></textarea>
     <button id="generateQuiz" class="btn info">Genera Quiz</button>
     <div id="quizContainer"></div>
   </div>
 
   <script>
-    // Funzione per generare un quiz
     document.getElementById('generateQuiz').addEventListener('click', () => {
       const text = document.getElementById('textInput').value;
+      
+      // Verifica se il testo è stato inserito
       if (!text.trim()) {
         alert("Inserisci del testo per generare il quiz!");
         return;
       }
 
-      const sentences = text.split('.').filter(s => s.trim()); // Prendi frasi dal testo
+      // Split the text into sentences
+      const sentences = text.split('.').filter(s => s.trim());
       if (sentences.length < 2) {
         alert("Inserisci almeno due frasi per generare il quiz!");
         return;
