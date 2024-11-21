@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Avanzato con Risposte Logiche</title>
+  <title>Quiz Avanzato con Risposte Accurate</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -70,66 +70,65 @@
 </head>
 <body>
   <div class="container">
-    <h1>Quiz Avanzato con Risposte Logiche</h1>
+    <h1>Quiz con Risposte Accurate da AI</h1>
     <textarea id="textInput" rows="6" placeholder="Inserisci del testo..."></textarea>
     <button id="generateQuiz" class="btn info">Genera Quiz</button>
     <div id="quizContainer"></div>
   </div>
 
   <script>
-    document.getElementById('generateQuiz').addEventListener('click', () => {
+    document.getElementById('generateQuiz').addEventListener('click', async () => {
       const text = document.getElementById('textInput').value;
-      
-      // Verifica se il testo è stato inserito
+
       if (!text.trim()) {
         alert("Inserisci del testo per generare il quiz!");
         return;
       }
 
-      // Split the text into sentences
+      // Estrazione della domanda dal testo
       const sentences = text.split('.').filter(s => s.trim());
-      if (sentences.length < 2) {
-        alert("Inserisci almeno due frasi per generare il quiz!");
-        return;
-      }
-
-      // Seleziona una frase casuale come domanda
       const randomSentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
       const question = `Cosa significa: "${randomSentence}"?`;
 
-      // Risposte: una corretta e altre errate
-      const correctAnswer = randomSentence;
-      const incorrectAnswers = sentences.filter(s => s !== correctAnswer).slice(0, 3); // Aggiungi risposte errate
-      const options = [correctAnswer, ...incorrectAnswers].sort(() => Math.random() - 0.5); // Mescola le risposte
+      // Ottenere la risposta tramite OpenAI API (o altra fonte esterna)
+      const correctAnswer = await getAnswerFromAI(question);
 
-      // Mostra la domanda e le risposte
+      // Mostra la domanda e la risposta corretta (per esempio, una sola risposta per ora)
       const quizContainer = document.getElementById('quizContainer');
       quizContainer.innerHTML = `
         <p><strong>Domanda:</strong> ${question}</p>
-        ${options.map(option => `<button class="btn" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`).join('')}
+        <button class="btn" onclick="checkAnswer('${correctAnswer}', '${correctAnswer}')">${correctAnswer}</button>
         <div id="feedback"></div>
       `;
     });
 
+    // Funzione per inviare la domanda all'AI (OpenAI API)
+    async function getAnswerFromAI(question) {
+      const apiKey = 'YOUR_OPENAI_API_KEY'; // Inserisci qui la tua API Key
+      const response = await fetch('https://api.openai.com/v1/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "text-davinci-003",
+          prompt: question,
+          max_tokens: 50,
+        }),
+      });
+      const data = await response.json();
+      return data.choices[0].text.trim(); // Risposta corretta
+    }
+
     // Funzione per controllare la risposta
     function checkAnswer(selected, correct) {
       const feedback = document.getElementById('feedback');
-      const quizContainer = document.getElementById('quizContainer');
-
       if (selected === correct) {
         feedback.innerHTML = "<p class='response-feedback correct'>Risposta corretta!</p>";
       } else {
         feedback.innerHTML = `<p class='response-feedback incorrect'>Risposta sbagliata! La risposta corretta era: "${correct}".</p>`;
       }
-
-      // Disabilita i pulsanti dopo la risposta
-      const buttons = quizContainer.querySelectorAll('button');
-      buttons.forEach(btn => btn.disabled = true);
-
-      // Mostra il bottone per fare un altro quiz
-      quizContainer.innerHTML += `
-        <button class="btn success" onclick="location.reload()">Prova un'altra domanda</button>
-      `;
     }
   </script>
 </body>
